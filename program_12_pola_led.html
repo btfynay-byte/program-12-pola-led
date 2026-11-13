@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Program Arduino - 12 Pola LED</title>
+<style>
+:root {
+  color-scheme: light;
+  --navy: #14263d; --panel: #0d1726; --muted: #9aabc0;
+  --line: #26364a; --blue: #3186d8; --bg: #f3f6fa;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: #17263a;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+header {
+  background: linear-gradient(115deg, #14263d, #203d5c);
+  color: white; padding: 34px max(22px, calc((100vw - 1120px)/2));
+}
+.eyebrow { color: #a9c9e9; text-transform: uppercase; letter-spacing: 2px; font-size: 11px; font-weight: 700; }
+h1 { margin: 9px 0 7px; font-size: clamp(25px, 4vw, 36px); }
+.subtitle { margin: 0; color: #c4d2e1; font-size: 14px; }
+main { max-width: 1120px; margin: 28px auto; padding: 0 20px 40px; }
+.toolbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: white; border: 1px solid #e0e7ef; border-bottom: 0;
+  padding: 13px 16px; border-radius: 12px 12px 0 0;
+}
+.fileinfo { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 650; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #36bd82; }
+.lang { color: #718096; font-size: 12px; font-weight: 500; }
+button {
+  border: 0; border-radius: 7px; padding: 9px 14px; background: var(--blue);
+  color: white; font-weight: 650; cursor: pointer; font-size: 12px;
+}
+button:hover { background: #236fb8; }
+.code-shell {
+  background: var(--panel); border: 1px solid #26364a; border-radius: 0 0 12px 12px;
+  overflow: hidden; box-shadow: 0 12px 32px rgba(20,38,61,.12);
+}
+.code-scroll {
+  max-height: 76vh; min-height: 430px; overflow: auto;
+  padding: 18px 0; scrollbar-color: #53657a #111d2d;
+}
+.code-lines { margin: 0; padding: 0 22px 0 68px; counter-reset: line; }
+.code-lines li {
+  padding-left: 13px; color: #e5edf7; font: 13px/1.72 "Cascadia Code", Consolas, "Courier New", monospace;
+  white-space: pre; counter-increment: line;
+}
+.code-lines li::marker { content: counter(line); color: #71839a; font-size: 11px; }
+.code-lines code { font: inherit; }
+.comment { color: #79bd8a; }
+.keyword { color: #c792ea; }
+.number { color: #f3b66b; }
+.footer {
+  display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  padding: 12px 16px; border-top: 1px solid var(--line); color: #91a3b9; font-size: 11px;
+}
+.note { color: #718096; font-size: 12px; margin: 13px 2px 0; line-height: 1.6; }
+@media (max-width: 600px) {
+  header { padding: 27px 20px; }
+  main { margin-top: 18px; padding: 0 12px 28px; }
+  .toolbar { padding: 11px; }
+  .code-lines { padding-left: 52px; }
+  .code-lines li { font-size: 11px; }
+  .code-scroll { min-height: 380px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Arduino Project · Teknik Elektronika</div>
+  <h1>Program 12 Pola LED</h1>
+  <p class="subtitle">Arduino Uno · 12 LED · Pin digital 2 sampai 13</p>
+</header>
+<main>
+  <div class="toolbar">
+    <div class="fileinfo"><span class="dot"></span><span>led_12_pola.ino</span><span class="lang">C++ / Arduino</span></div>
+    <button id="copyBtn" type="button">Salin Kode</button>
+  </div>
+  <section class="code-shell" aria-label="Kode program Arduino">
+    <div class="code-scroll">
+      <ol class="code-lines" id="codeLines"></ol>
+    </div>
+    <div class="footer"><span id="lineCount">Memuat kode...</span><span>Scroll untuk melihat seluruh program ↓</span></div>
+  </section>
+  <p class="note">Program ditampilkan utuh dalam satu editor. Gunakan tombol <b>Salin Kode</b> untuk menyalin seluruh isi program.</p>
+</main>
+<script>
+const sourceCode = `// Array pin untuk 12 lampu LED (Pin 2 sampai Pin 13)
+const int ledPins[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+const int totalLampu = 12;
+
+void setup() {
+  // Atur semua pin LED sebagai OUTPUT
+  for (int i = 0; i &lt; totalLampu; i++) {
+    pinMode(ledPins[i], OUTPUT);
+  }
+}
+
+void loop() {
+  // 1. Flip-Flop Ganjil-Genap (4 kali)
+  polaFlipFlopGanjilGenap(4, 250);
+  matikanSemua();
+
+  // 2. Flip-Flop Kiri-Kanan (4 kali)
+  polaFlipFlopKiriKanan(4, 300);
+  matikanSemua();
+
+  // 3. Flip-Flop Blok 3-3 (4 kali)
+  polaFlipFlopBlok3(4, 250);
+  matikanSemua();
+
+  // 4. Flip-Flop Luar-Dalam (4 kali)
+  polaFlipFlopLuarDalam(4, 300);
+  matikanSemua();
+
+  // 5. Flip-Flop Akselerasi (1 siklus makin cepat)
+  polaFlipFlopAkselerasi();
+  matikanSemua();
+
+  // 6. Running LED (2 kali siklus maju-mundur)
+  polaRunning(2, 60);
+  matikanSemua();
+
+  // 7. Stacking LED (1 kali siklus penuh)
+  polaStacking(50);
+  matikanSemua();
+
+  // 8. Ping-Pong / Bounce (4 kali)
+  polaPingPong(4, 70);
+  matikanSemua();
+
+  // 9. Center Out (3 kali)
+  polaCenterOut(3, 100);
+  matikanSemua();
+
+  // 10. Filling LED (2 kali)
+  polaFilling(2, 60);
+  matikanSemua();
+
+  // 11. Meteor / Komet (3 kali)
+  polaMeteor(3, 60);
+  matikanSemua();
+
+  // 12. Strobe Flash (4 kali)
+  polaStrobe(4, 40);
+  matikanSemua();
+
+  delay(1000); // Jeda 1 detik sebelum mengulang seluruh urutan dari awal
+}
+
+// ==================== DEFINISI 12 POLA ====================
+
+// 1. Flip-Flop Ganjil-Genap
+void polaFlipFlopGanjilGenap(int pengulangan, int delayWaktu) {
+  for (int r = 0; r &lt; pengulangan; r++) {
+    for (int i = 0; i &lt; totalLampu; i++) {
+      digitalWrite(ledPins[i], (i % 2 == 0) ? HIGH : LOW);
+    }
+    delay(delayWaktu);
+    for (int i = 0; i &lt; totalLampu; i++) {
+      digitalWrite(ledPins[i], (i % 2 == 0) ? LOW : HIGH);
+    }
+    delay(delayWaktu);
+  }
+}
+
+// 2. Flip-Flop Kiri-Kanan
+void polaFlipFlopKiriKanan(int pengulangan, int delayWaktu) {
+  for (int r = 0; r &lt; pengulangan; r++) {
+    for (int i = 0; i &lt; totalLampu; i++) {
+      digitalWrite(ledPins[i], (i &lt; 6) ? HIGH : LOW);
+    }
+    delay(delayWaktu);
+    for (int i = 0; i &lt; totalLampu; i++) {
+      digitalWrite(ledPins[i], (i &lt; 6) ? LOW : HIGH);
+    }
+    delay(delayWaktu);
+  }
+}
+
+// 3. Flip-Flop Blok 3-3
+void polaFlipFlopBlok3(int pengulangan, int delayWaktu) {
+  for (int r = 0; r &lt; pengulangan; r++) {
+    for (int i = 0; i &lt; totalLampu; i++) {
+      digitalWrite(ledPins[i], ((i / 3) % 2 == 0) ? HIGH : LOW);
+    }
+    delay(delayWaktu);
+    for (int i = 0; i &lt; totalLampu; i++) {
+      digitalWrite(ledPins[i], ((i / 3) % 2 == 0) ? LOW : HIGH);
+    }
+    delay(delayWaktu);
+  }
+}
+
+// 4. Flip-Flop Luar-Dalam
+void polaFlipFlopLuarDalam(int pengulangan, int delayWaktu) {
+  for (int r = 0; r &lt; pengulangan; r++) {
+    for (int i = 0; i &lt; totalLampu; i++) {
+      if (i == 0 || i == 1 || i == 10 || i == 11) {
+        digitalWrite(ledPins[i], HIGH);
+      } else {
+        digitalWrite(ledPins[i], LOW);
+      }
+    }
+    delay(delayWaktu);
+    for (int i = 0; i &lt; totalLampu; i++) {
+      if (i == 0 || i == 1 || i == 10 || i == 11) {
+        digitalWrite(ledPins[i], LOW);
+      } else {
+        digitalWrite(ledPins[i], HIGH);
+      }
+    }
+    delay(delayWaktu);
+  }
+}
+
+// 5. Flip-Flop Akselerasi
+void polaFlipFlopAkselerasi() {
+  for (int d = 300; d &gt;= 30; d -= 40) {
+    for (int i = 0; i &lt; totalLampu; i++) {
+      digitalWrite(ledPins[i], (i % 2 == 0) ? HIGH : LOW);
+    }
+    delay(d);
+    for (int i = 0; i &lt; totalLampu; i++) {
+      digitalWrite(ledPins[i], (i % 2 == 0) ? LOW : HIGH);
+    }
+    delay(d);
+  }
+}
+
+// 6. Running LED
+void polaRunning(int pengulangan, int delayWaktu) {
+  for (int r = 0; r &lt; pengulangan; r++) {
+    for (int i = 0; i &lt; totalLampu; i++) {
+      digitalWrite(ledPins[i], HIGH);
+      delay(delayWaktu);
+      digitalWrite(ledPins[i], LOW);
+    }
+    for (int i = totalLampu - 2; i &gt; 0; i--) {
+      digitalWrite(ledPins[i], HIGH);
+      delay(delayWaktu);
+      digitalWrite(ledPins[i], LOW);
+    }
+  }
+}
+
+// 7. Stacking LED
+void polaStacking(int delayWaktu) {
+  for (int tumpukan = totalLampu - 1; tumpukan &gt;= 0; tumpukan--) {
+    for (int i = 0; i &lt;= tumpukan; i++) {
+      digitalWrite(ledPins[i], HIGH);
+      delay(delayWaktu);
+      if (i &lt; tumpukan) {
+        digitalWrite(ledPins[i], LOW);
+      }
+    }
+  }
+  delay(500);
+}
+
+// 8. Ping-Pong / Bounce
+void polaPingPong(int pengulangan, int delayWaktu) {
+  for (int r = 0; r &lt; pengulangan; r++) {
+    for (int i = 0; i &lt; totalLampu / 2 + 1; i++) {
+      digitalWrite(ledPins[i], HIGH);
+      digitalWrite(ledPins[totalLampu - 1 - i], HIGH);
+      delay(delayWaktu);
+      digitalWrite(ledPins[i], LOW);
+      digitalWrite(ledPins[totalLampu - 1 - i], LOW);
+    }
+    for (int i = totalLampu / 2 - 1; i &gt;= 0; i--) {
+      digitalWrite(ledPins[i], HIGH);
+      digitalWrite(ledPins[totalLampu - 1 - i], HIGH);
+      delay(delayWaktu);
+      digitalWrite(ledPins[i], LOW);
+      digitalWrite(ledPins[totalLampu - 1 - i], LOW);
+    }
+  }
+}
+
+// 9. Center Out
+void polaCenterOut(int pengulangan, int delayWaktu) {
+  int tengah = totalLampu / 2;
+  for (int r = 0; r &lt; pengulangan; r++) {
+    for (int i = 0; i &lt;= tengah; i++) {
+      if (tengah - i &gt;= 0) digitalWrite(ledPins[tengah - i], HIGH);
+      if (tengah + i &lt; totalLampu) digitalWrite(ledPins[tengah + i], HIGH);
+      delay(delayWaktu);
+    }
+    for (int i = tengah; i &gt;= 0; i--) {
+      if (tengah - i &gt;= 0) digitalWrite(ledPins[tengah - i], LOW);
+      if (tengah + i &lt; totalLampu) digitalWrite(ledPins[tengah + i], LOW);
+      delay(delayWaktu);
+    }
+  }
+}
+
+// 10. Filling LED
+void polaFilling(int pengulangan, int delayWaktu) {
+  for (int r = 0; r &lt; pengulangan; r++) {
+    for (int i = 0; i &lt; totalLampu; i++) {
+      digitalWrite(ledPins[i], HIGH);
+      delay(delayWaktu);
+    }
+    for (int i = totalLampu - 1; i &gt;= 0; i--) {
+      digitalWrite(ledPins[i], LOW);
+      delay(delayWaktu);
+    }
+  }
+}
+
+// 11. Meteor
+void polaMeteor(int pengulangan, int delayWaktu) {
+  for (int r = 0; r &lt; pengulangan; r++) {
+    for (int i = 0; i &lt; totalLampu + 3; i++) {
+      if (i &lt; totalLampu) digitalWrite(ledPins[i], HIGH);
+      if (i - 3 &gt;= 0 &amp;&amp; i - 3 &lt; totalLampu) digitalWrite(ledPins[i - 3], LOW);
+      delay(delayWaktu);
+    }
+    for (int k = 0; k &lt; totalLampu; k++) {
+      digitalWrite(ledPins[k], LOW);
+    }
+  }
+}
+
+// 12. Strobe Flash
+void polaStrobe(int pengulangan, int delayWaktu) {
+  for (int r = 0; r &lt; pengulangan; r++) {
+    for (int k = 0; k &lt; 5; k++) {
+      for (int i = 0; i &lt; totalLampu; i++) {
+        digitalWrite(ledPins[i], HIGH);
+      }
+      delay(delayWaktu);
+      for (int i = 0; i &lt; totalLampu; i++) {
+        digitalWrite(ledPins[i], LOW);
+      }
+      delay(delayWaktu);
+    }
+    delay(300);
+  }
+}
+
+// Fungsional Pendukung: Matikan Semua LED
+void matikanSemua() {
+  for (int i = 0; i &lt; totalLampu; i++) {
+    digitalWrite(ledPins[i], LOW);
+  }
+  delay(150);
+}`;
+const codeLines = document.getElementById('codeLines');
+sourceCode.split('\n').forEach((line) => {
+  const li = document.createElement('li');
+  const codeEl = document.createElement('code');
+  // Pewarnaan sederhana untuk komentar, keyword, dan angka.
+  const safe = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  if (/^\s*\/\//.test(line)) {
+    codeEl.innerHTML = '<span class="comment">' + safe + '</span>';
+  } else {
+    codeEl.innerHTML = safe
+      .replace(/\b(void|const|int|for|if|else)\b/g, '<span class="keyword">$1</span>')
+      .replace(/\b(OUTPUT|HIGH|LOW)\b/g, '<span class="keyword">$1</span>')
+      .replace(/\b(\\d+)\b/g, '<span class="number">$1</span>');
+  }
+  li.appendChild(codeEl);
+  codeLines.appendChild(li);
+});
+document.getElementById('lineCount').textContent = sourceCode.split('\n').length + ' baris kode';
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('copyBtn');
+  try {
+    await navigator.clipboard.writeText(sourceCode);
+    btn.textContent = 'Tersalin!';
+    setTimeout(() => btn.textContent = 'Salin Kode', 1800);
+  } catch (e) {
+    const area = document.createElement('textarea');
+    area.value = sourceCode; document.body.appendChild(area);
+    area.select(); document.execCommand('copy'); area.remove();
+    btn.textContent = 'Tersalin!';
+    setTimeout(() => btn.textContent = 'Salin Kode', 1800);
+  }
+});
+</script>
+</body>
+</html>
